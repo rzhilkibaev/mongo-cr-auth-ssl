@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+openssl req -newkey rsa:2048 -new -x509 -days 9999 -nodes -out mongodb-cert.crt -keyout mongodb-cert.key -subj '/C=US/ST=CA/L=San Francisco/O=Jaspersoft/OU=JSDev/CN=.'
+cat mongodb-cert.key mongodb-cert.crt > mongodb.pem
+keytool -importcert -trustcacerts -noprompt -file mongodb-cert.crt -keystore trust-store.jks -storepass '123456'
