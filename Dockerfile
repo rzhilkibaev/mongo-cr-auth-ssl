@@ -5,8 +5,6 @@
 FROM rzhilkibaev/mongo-cr-auth
 
 RUN mkdir -p /etc/ssl
-COPY mongodb-cert.crt /etc/ssl/
-COPY mongodb-cert.key /etc/ssl/
 COPY mongodb.pem /etc/ssl/
 COPY trust-store.jks /etc/ssl/
 

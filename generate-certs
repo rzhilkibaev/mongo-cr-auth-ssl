@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
-set -e
+set -eo pipefail
 
-openssl req -newkey rsa:2048 -new -x509 -days 9999 -nodes -out mongodb-cert.crt -keyout mongodb-cert.key -subj '/C=US/ST=CA/L=San Francisco/O=Jaspersoft/OU=JSDev/CN=.'
+# the script first argument is a hostname to be used in the server certificate subj (the CN field)
+SRV_SUBJ_CN=${1:-localhost}
+# Server certificate subj, the CN must match the hosname of the server
+SRV_SUBJ="/CN=$SRV_SUBJ_CN$SUBJ_PART"
+
+# create a private key, a certificate and sefl-sign the certificate with the key
+openssl req -newkey rsa:2048 -new -x509 -days 9999 -nodes -out mongodb-cert.crt -keyout mongodb-cert.key -subj "$SRV_SUBJ"
 cat mongodb-cert.key mongodb-cert.crt > mongodb.pem
+
+# create JKS store for java clients
+rm trust-store.jks
 keytool -importcert -trustcacerts -noprompt -file mongodb-cert.crt -keystore trust-store.jks -storepass '123456'
+
+# clean up
+rm mongodb-cert.key mongodb-cert.crt
